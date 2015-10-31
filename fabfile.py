@@ -1,5 +1,5 @@
 from fabric.api import run
-
+from fabric.state import env
 # self 147
 
 def host_type():
@@ -7,27 +7,27 @@ def host_type():
 
 # H = 192.168.43.149
 
-def take_cold_backup( mysql_conf_file='/etc/mysql/my.cnf',mysql_data_dir='/var/lib/mysql',destination_host='192.168.43.148'):
+def take_cold_backup( mysql_conf_file='/etc/mysql/my.cnf',mysql_data_dir='/var/lib/mysql',destination_host='192.168.43.148',user='sbose'):
 
 
 	# create backup directory
-	run('sudo mkdir -p /tmp/mysql-backup/conf ; sudo mkdir -p /tmp/mysql-backup/data')
-	run('sudo cp -R /etc/mysql/my.cnf /tmp/mysql-backup/conf/ ; sudo cp -R /var/lib/mysql/ /tmp/mysql-backup/data/' )
+	run('mkdir -p /tmp/mysql-backup/conf ; mkdir -p /tmp/mysql-backup/data')
+	run('cp -R %s /tmp/mysql-backup/conf/ ; sudo cp -R  %s /tmp/mysql-backup/data/'%( mysql_conf_file , mysql_data_dir ) )
 
 	# tar it 
 	run('sudo tar -zcvf /tmp/mysql-backup.tar.gz /tmp/mysql-backup')
 
 	# send the zipped file over scp
-	run('sudo scp /tmp/mysql-backup.tar.gz sbose@%s:/tmp/mysql-backup.tar.gz'%(destination_host))
+	run('scp /tmp/mysql-backup.tar.gz %s@%s:/tmp/mysql-backup.tar.gz'%(user,destination_host))
 	print "Moved backup to destination host %s"%( destination_host ) 
 
 
 # H = 192.168.43.148
 
-def restore_backup(backup_path='/tmp/mysql-backup.tar.gz',backup_dir='/tmp/mysql-backup/'):
+def restore_backup(backup_path='/tmp/mysql-backup.tar.gz',backup_dir='/tmp/mysql-backup/', mysql_conf_file='/etc/mysql/my.cnf',mysql_data_dir='/var/lib/mysql'):
 
 	# unzip it under /tmp/
-	run('sudo mkdir -p /tmp/mysql-restore')
+	run('mkdir -p /tmp/mysql-restore')
 	run('sudo tar -xvf /tmp/mysql-backup.tar.gz -C /tmp/mysql-restore')
 
 	# check if mysql is installed in remote server.
