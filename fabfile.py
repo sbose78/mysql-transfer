@@ -1,5 +1,6 @@
-from fabric.api import run
+from fabric.api import run,settings
 from fabric.state import env
+from fabric.tasks import execute
 # self 147
 
 def host_type():
@@ -44,7 +45,10 @@ def restore_backup(backup_path='/tmp/mysql-backup.tar.gz',backup_dir='/tmp/mysql
 	print "End of backup"
 
 def bind_to_host():
-	print "not implemented"
+	print env.host
+	# Comment out existing
+	run("sudo sed -i -e 's/bind-address/#bind-address/g' /etc/mysql/my.cnf ")
+	run("echo 'bind-address = %s' | sudo tee --append /etc/mysql/my.cnf"%(env.host))
 
 def stop_mysql():
 	with settings(warn_only=True):
@@ -55,4 +59,17 @@ def start_mysql():
 	
 	# start mysql
 	run("sudo service mysql start")
+
+def wrapper_run_all(source_database_host,destination_database_host,username):
+	'''
+		fab take_cold_backup -H $SOURCE_DB_HOST
+		fab restore_backup -H $DESTINATION_DB_HOST
+		fab bind_to_host -H $DESTINATION_DB_HOST
+	'''
+	execute( take_cold_backup , hosts = [ '%s@%s'%(username,source_database_host) ] )
+	execute( restore_backup , hosts = [ '%s@%s'%(username,destination_database_host) ] )
+	execute( bind_to_host , hosts = [ '%s@%s'%(username,destination_database_host) ] )
+	execute( stop_mysql , hosts = [ '%s@%s'%(username,destination_database_host) ] )
+	execute( start_mysql , hosts = [ '%s@%s'%(username,destination_database_host) ] )
+
 
