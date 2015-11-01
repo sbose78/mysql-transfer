@@ -6,6 +6,21 @@ from fabric.tasks import execute
 def host_type():
     run('uname -s')
 
+
+def pre_backup_tasks(mysql_root_password):
+
+	# allow operations to complete and then gracefully shut down.
+	with settings(warn_only=True):
+		run('mysql -uroot -p%s -e"SET GLOBAL innodb_fast_shutdown = 0"'%( mysql_root_password) )
+		# stop mysql
+		execute( stop_mysql , hosts = [ '%s'%( env.host ) ] )	
+	
+
+def post_backup_tasks():
+	with settings(warn_only=True):
+		execute( start_mysql ,  hosts = [ '%s'%( env.host ) ] )
+
+
 # H = 192.168.43.149
 
 def take_cold_backup( mysql_conf_file='/etc/mysql/my.cnf',mysql_data_dir='/var/lib/mysql',destination_host='192.168.43.148',user='sbose'):
@@ -60,13 +75,16 @@ def start_mysql():
 	# start mysql
 	run("sudo service mysql start")
 
-def wrapper_run_all(source_database_host,destination_database_host,username):
+def wrapper_run_all(source_database_host,destination_database_host,username,mysql_root_password):
 	'''
 		fab take_cold_backup -H $SOURCE_DB_HOST
 		fab restore_backup -H $DESTINATION_DB_HOST
 		fab bind_to_host -H $DESTINATION_DB_HOST
 	'''
-	execute( take_cold_backup , hosts = [ '%s@%s'%(username,source_database_host) ] )
+	execute( pre_backup_tasks , hosts = [ '%s@%s'%(username,source_database_host) ] , mysql_root_password = mysql_root_password )
+	execute( take_cold_backup , hosts = [ '%s@%s'%(username,source_database_host) ] , destination_host = destination_database_host , user = username )
+	execute( post_backup_tasks , hosts = [ '%s@%s'%(username,destination_database_host) ] )
+
 	execute( restore_backup , hosts = [ '%s@%s'%(username,destination_database_host) ] )
 	execute( bind_to_host , hosts = [ '%s@%s'%(username,destination_database_host) ] )
 	execute( stop_mysql , hosts = [ '%s@%s'%(username,destination_database_host) ] )

@@ -1,7 +1,6 @@
-Example Usage:
+./run.py -s 192.168.43.149 -d 192.168.43.148 -u sbose -p my_mysql_root_password
 
-./run.py -s 192.168.43.149 -d 192.168.43.148 -u sbose
-
+```
 
 Usage: run.py [options]
 
@@ -14,6 +13,7 @@ Options:
                         The destination host where database is being copied
                         to.
   -u USERNAME, --username=USERNAME
-                        The user which will be executing.
-
-
+                        The UNIX user which will be executing.
+  -p PASSWORD, --password=PASSWORD
+                        The MySQL root password.
+```
