@@ -17,7 +17,7 @@ $ sh utils/install-dependencies.sh
 ```
 
 
-** Usage **
+**Usage**
 ```
 
 Usage: run.py [options]
