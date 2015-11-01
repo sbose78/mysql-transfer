@@ -76,11 +76,6 @@ def start_mysql():
 	run("sudo service mysql start")
 
 def wrapper_run_all(source_database_host,destination_database_host,username,mysql_root_password):
-	'''
-		fab take_cold_backup -H $SOURCE_DB_HOST
-		fab restore_backup -H $DESTINATION_DB_HOST
-		fab bind_to_host -H $DESTINATION_DB_HOST
-	'''
 	execute( pre_backup_tasks , hosts = [ '%s@%s'%(username,source_database_host) ] , mysql_root_password = mysql_root_password )
 	execute( take_cold_backup , hosts = [ '%s@%s'%(username,source_database_host) ] , destination_host = destination_database_host , user = username )
 	execute( post_backup_tasks , hosts = [ '%s@%s'%(username,destination_database_host) ] )
