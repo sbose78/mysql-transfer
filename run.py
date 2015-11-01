@@ -21,6 +21,12 @@ def copy_database(source,destination,username):
 
 def main():
 	global options
+	mandatory = [ options.source_database_host , options.destination_database_host , options.username ]
+	for i in mandatory :
+		if i == None:
+			print "Mandatory arguments missing "
+			return 
+
 	copy_database( options.source_database_host , options.destination_database_host , options.username )
 
 main()	
