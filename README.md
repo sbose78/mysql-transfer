@@ -62,7 +62,7 @@ To access the different hosts both manually and programmatically, we would need 
 
 
 
-**Cluster environments ( Replication scenario ) **
+**Cluster environments ( Replication scenario )**
 
 In a master-slave cluster environment, I would choose the master for copying the database.
 Since the method designed by me requires a cold backup, a system shutdown of the master would mean that the failover slave node would take over , preferably in read only mode.
