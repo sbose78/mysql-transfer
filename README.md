@@ -36,6 +36,19 @@ Options:
                         The MySQL root password.
 ```
 
+**Flow**
+
+The current design does the following:
+
+1. Ensure current commits to the source database is complete.
+2. Shutdown database.
+3. Take cold backup. Tar zip it.
+4. Start source database.
+5. Scp it into the destination host.
+6. Unzip, and restore from physical backup.
+7. Since then conf file was also copied, update the bind address. ( other conf parameters should be updated too )
+8. Start MySQL.
+
 **ACL**
 
 The access control is something that I would keep more at the Unix level than at the database level, to ensure that we do not have to worry about different production and DEBUG builds.
