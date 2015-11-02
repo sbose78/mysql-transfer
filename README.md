@@ -42,7 +42,7 @@ The current design does the following:
 
 1. Ensure current commits to the source database is complete.
 2. Shutdown database.
-3. Take cold backup. Tar zip it.
+3. Take cold backup. Tar + gzip it.
 4. Start source database.
 5. Scp it into the destination host.
 6. Unzip, and restore from physical backup.
